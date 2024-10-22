@@ -1,0 +1,50 @@
+﻿@page "/Account/Login"
+
+@inject NavigationManager _nav
+@inject IAuthRepository _AuthRepository
+
+@if (IsFields == true)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong> Something went wrong </strong>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<EditForm Model="user" OnValidSubmit="HandleRegistration">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>Email </label>
+        <InputText @bind-Value="user.Email" class="form-control" />
+    </div>
+    <br />
+    <div class="form-group">
+        <label> Password </label>
+        <InputText @bind-Value="user.Password" class="form-control" />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-success"> Submit </button>
+    <a href="/Account/Register">Don't have an account?</a>
+</EditForm>
+
+@code {
+    LoginDto user = new LoginDto();
+
+    bool IsFields = false;
+
+    protected async Task HandleRegistration()
+    {
+        var response = await _AuthRepository.Login(user);
+        if (response)
+        {
+            _nav.NavigateTo("/");
+        }
+        else
+        {
+            IsFields = true;
+        }
+    }
+}

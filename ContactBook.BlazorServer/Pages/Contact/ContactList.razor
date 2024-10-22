@@ -1,0 +1,68 @@
+﻿@page "/Contact/List"
+@using ContactBook.BlazorServer.EndPoints
+
+
+@*
+@if (contacts == null || contacts.Count() <= 0)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div class="card-deck">
+        @foreach (var contact in contacts)
+        {
+            <div class="card m-3" style="min-width: 20rem; max-width: 25.5%; float: left">
+                <div class="card-header">
+                    <h4>@contact.FirstName @contact.LastName</h4>
+                </div>
+                <img class="card-img-top imageThumbnail" src="/uploads/@contact.Image" alt="Contact Image">
+                <div class="card-footer text-center">
+                    <a href="/Contact/details/@contact.Id" class="btn btn-primary m-1">View</a>
+                    <a href="/Contact/Edit/@contact.Id" class="btn btn-primary m-1">Edit</a>
+                    <a href="/Contact/Delete/@contact.Id" class="btn btn-danger m-1" data-toggle="modal" data-target="#deleteConfirmationModal">Delete</a>
+                </div>
+            </div>
+        }
+    </div>
+}*@
+@if (contacts == null || contacts.Count() <= 0)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div class="row">
+        @foreach (var contact in contacts)
+        {
+            <div class="col-lg-4 col-md-6 col-sm-12">
+                <div class="card m-3" style="min-width: 20rem;">
+                    <div class="card-header">
+                        <h4>@contact.FirstName @contact.LastName</h4>
+                    </div>
+                    <img class="card-img-top imageThumbnail" src="/uploads/@contact.Image" alt="Contact Image">
+                    <div class="card-footer text-center">
+                        <a href="/Contact/details/@contact.Id" class="btn btn-primary m-1">View</a>
+                        <a href="/Contact/Edit/@contact.Id" class="btn btn-primary m-1">Edit</a>
+                        <a href="/Contact/Delete/@contact.Id" class="btn btn-danger m-1" data-toggle="modal" data-target="#deleteConfirmationModal">Delete</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+
+
+@inject IContactRepository _Contact
+
+@code {
+    private IList<ContactDto> contacts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        string url = StaticEndpoints.GetContactsEndpoint;
+        contacts = await _Contact.GetAll(url);
+    }
+}

@@ -1,0 +1,89 @@
+﻿@page "/Contact/details/{id}"
+@using ContactBook.BlazorServer.EndPoints
+@inject IContactRepository _ContactRepository
+@inject NavigationManager _Nav
+<h3>Contact details</h3>
+
+
+@if (contact == null)
+{
+    <div class="spinner"></div>
+}
+else
+{
+    <div class="row justify-content-center m-2">
+        <div class="col-sm-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1>@contact.FirstName @contact.LastName</h1>
+                </div>
+
+                <div class="card-body text-center">
+                    <img class="card-img-top" src="/uploads/@contact.Image" alt="Contact Image"   />
+
+                    <h4>Contact ID : @contact.Id</h4>
+                    <h4>Phone Number : @contact.PhoneNumber</h4>
+                    <h4> Age : @age </h4>
+                    <h4> About : @contact.About</h4>
+                    <button class="btn btn-primary" @onclick="@Button_Click">@ButtonText</button>
+                </div>
+                <div class="card-footer text-center @CssClass">
+                    <a href="/Contact/List" class="btn btn-primary">Back</a>
+                    <a href="@($"/Contact/Edit/{contact.Id}")" class="btn btn-primary">Edit</a>
+                    <a href="@DeleteContact" class="btn btn-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    protected string ButtonText { get; set; } = "Hide Footer";
+    protected string CssClass { get; set; } = null;
+    private int age;
+    private bool IsSuccess = true;
+    
+
+    private ContactDto contact = new ContactDto();
+
+    
+     
+    protected override async Task OnInitializedAsync()
+    {
+        string apiUrl = StaticEndpoints.GetContactByIdEndpoint;
+        int id = Convert.ToInt32(Id);
+        contact = await _ContactRepository.GetById(apiUrl, id);
+
+        DateTime dob = DateTime.Parse(contact.Age.ToString());
+        age = (int)(DateTime.Now.Subtract(dob).TotalDays / 365.25);
+    }
+
+
+    protected void Button_Click()
+    {
+        if (ButtonText == "Hide Footer")
+        {
+            ButtonText = "Show Footer";
+            CssClass = "HideFooter";
+        }
+        else
+        {
+            CssClass = null;
+            ButtonText = "Hide Footer";
+        }
+    }
+
+
+
+    private async Task DeleteContact()
+    {
+        string apiUrl = StaticEndpoints.DeleteContactEndpoint;
+        IsSuccess = await _ContactRepository.Delete(apiUrl,contact.Id);
+        if (IsSuccess)
+        {
+            _Nav.NavigateTo("/Contact/List");
+        }
+    }
+}
